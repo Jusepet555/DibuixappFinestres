@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DibuixApp Finestres v1.36</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>DibuixApp Finestres</h1>
+      <p>Prototip v1.36 · base bona ordenada</p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel controls-panel">
+      <h2>Dades del dibuix</h2>
+
+      <label>
+        Model
+        <select id="model">
+          <option value="fixed">Fixe</option>
+          <option value="practicable" selected>Finestra 1 fulla practicable</option>
+          <option value="practicable2">Finestra 2 fulles practicables</option>
+          <option value="sliding2">Corredissa 2 fulles</option>
+          <option value="door">Porta 1 fulla</option>
+        </select>
+      </label>
+
+      <div class="grid-2">
+        <label>
+          Amplada H (mm)
+          <input id="widthInput" type="text" inputmode="numeric" value="590" placeholder="Ex. 590" />
+        </label>
+
+        <label>
+          Alçada V (mm)
+          <input id="heightInput" type="text" inputmode="numeric" value="590" placeholder="Ex. 590" />
+        </label>
+      </div>
+
+      <div class="option-stack">
+        <label class="check-row" id="oscilloRow">
+          <input id="oscilloInput" type="checkbox" checked />
+          Oscil·lo
+        </label>
+
+        <label class="check-row">
+          <input id="trimInput" type="checkbox" />
+          Activar tapajuntes
+        </label>
+
+        <div id="trimSideOptions" class="trim-side-options hidden">
+          <div class="trim-side-title">Costats del tapajuntes</div>
+          <div class="trim-side-grid">
+            <label class="check-row small-check"><input id="trimTopInput" type="checkbox" checked /> Dalt</label>
+            <label class="check-row small-check"><input id="trimBottomInput" type="checkbox" checked /> Baix</label>
+            <label class="check-row small-check"><input id="trimLeftInput" type="checkbox" checked /> Esquerra</label>
+            <label class="check-row small-check"><input id="trimRightInput" type="checkbox" checked /> Dreta</label>
+          </div>
+        </div>
+
+        <label class="check-row">
+          <input id="showDims" type="checkbox" checked />
+          Mostrar cotes
+        </label>
+      </div>
+
+      <div id="practiceOptions" class="grid-2">
+        <label>
+          Mà d'obertura
+          <select id="handInput">
+            <option value="right">Dreta</option>
+            <option value="left">Esquerra</option>
+          </select>
+        </label>
+        <label id="openRow" class="hidden">
+          Obertura
+          <select id="openInput">
+            <option value="interior">Interior</option>
+            <option value="exterior">Exterior</option>
+          </select>
+        </label>
+        <label id="doorFrameRow" class="hidden">
+          Marc inferior
+          <select id="doorBottomFrameInput">
+            <option value="open" selected>Obert</option>
+            <option value="closed">Tancat</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="multiLeafOptions" class="leaf-block hidden">
+        <div class="leaf-card">
+          <h3>Fulla esquerra</h3>
+          <label class="check-row small-check"><input id="leaf1Active" type="checkbox" /> Activa (porta maneta)</label>
+          <label>
+            Mà d'obertura
+            <select id="leaf1Hand">
+              <option value="left" selected>Esquerra</option>
+              <option value="right">Dreta</option>
+            </select>
+          </label>
+          <label class="check-row small-check">
+            <input id="leaf1Oscillo" type="checkbox" /> Oscil·lo
+          </label>
+        </div>
+
+        <div class="leaf-card">
+          <h3>Fulla dreta</h3>
+          <label class="check-row small-check"><input id="leaf2Active" type="checkbox" checked /> Activa (porta maneta)</label>
+          <label>
+            Mà d'obertura
+            <select id="leaf2Hand">
+              <option value="left">Esquerra</option>
+              <option value="right" selected>Dreta</option>
+            </select>
+          </label>
+          <label class="check-row small-check">
+            <input id="leaf2Oscillo" type="checkbox" checked /> Oscil·lo
+          </label>
+        </div>
+      </div>
+
+      <div id="slidingOptions" class="leaf-block hidden">
+        <div class="leaf-card">
+          <h3>Configuració corredissa</h3>
+          <label>
+            Fulla interior
+            <select id="slideInteriorSide">
+              <option value="right" selected>Dreta</option>
+              <option value="left">Esquerra</option>
+            </select>
+          </label>
+        </div>
+        <div class="leaf-card">
+          <h3>Ferratge fulla exterior</h3>
+          <label>
+            Ferratge
+            <select id="slideOuterHardware">
+              <option value="none">Sense res</option>
+              <option value="ungler" selected>Unyero</option>
+              <option value="handle">Maneta</option>
+            </select>
+          </label>
+        </div>
+        <div class="leaf-card">
+          <h3>Ferratge fulla interior</h3>
+          <label>
+            Ferratge
+            <select id="slideInnerHardware">
+              <option value="none">Sense res</option>
+              <option value="ungler">Unyero</option>
+              <option value="handle" selected>Maneta</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div id="liftSlideOptions" class="leaf-block hidden">
+        <div class="leaf-card lift-card">
+          <h3>Opció corredissa elevable</h3>
+          <p class="helper-text">Apareix quan la corredissa supera 2500 mm d'amplada i 2000 mm d'alçada.</p>
+          <label class="check-row small-check">
+            <input id="liftSlideInput" type="checkbox" /> Convertir en elevable
+          </label>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button id="generateBtn" type="button">Generar dibuix</button>
+        <button id="downloadBtn" type="button" class="secondary">Descarregar SVG</button>
+        <button id="printBtn" type="button" class="secondary">Imprimir / PDF</button>
+      </div>
+
+      <div class="notes">
+        <strong>Versió 1.36:</strong> partim de la <strong>v1.35</strong> com a base bona. En <strong>Porta 1 fulla</strong>, quan el <strong>marc inferior</strong> és <strong>obert</strong>, el <strong>tapajuntes baix</strong> queda desactivat i no es pot marcar. Quan el marc inferior és <strong>tancat</strong>, l'opció de tapajuntes baix torna a estar disponible.
+      </div>
+    </section>
+
+    <section class="panel preview-panel">
+      <div class="preview-title">
+        <h2>Vista prèvia</h2>
+        <span id="measureSummary">H=590 mm · V=590 mm</span>
+      </div>
+      <div id="drawingArea" class="drawing-area" aria-label="Dibuix tècnic de finestra"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
