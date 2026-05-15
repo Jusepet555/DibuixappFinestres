@@ -865,3 +865,99 @@ button.secondary {
     justify-content: flex-start;
   }
 }
+
+
+/* =========================================================
+   v1.44 · Selecció de tipus molt més visible
+   ========================================================= */
+.model-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.model-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(135deg, rgba(47,136,188,0.12), rgba(36,92,132,0.04));
+  transition: opacity 0.15s ease;
+}
+
+.model-card-status {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  margin-top: 5px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #245c84;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  box-shadow: 0 6px 12px rgba(36, 92, 132, 0.20);
+}
+
+.model-card-status::before {
+  content: "✓";
+  font-weight: 900;
+}
+
+.model-card-active {
+  transform: translateY(-2px);
+  background: linear-gradient(180deg, #e3f3ff, #d3ebfb);
+  border: 2px solid #245c84;
+  box-shadow:
+    0 0 0 4px rgba(47, 136, 188, 0.16),
+    0 16px 28px rgba(36, 92, 132, 0.22);
+}
+
+.model-card-active::before {
+  opacity: 1;
+}
+
+.model-card-active .model-card-icon {
+  color: #123d59;
+  transform: scale(1.08);
+}
+
+.model-card-active .model-card-title {
+  color: #123d59;
+}
+
+.model-card-active .model-card-text {
+  color: #245c84;
+}
+
+.model-card-active .model-card-status {
+  display: inline-flex;
+}
+
+.model-card-active::after {
+  content: "✓";
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #245c84;
+  color: white;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 0 8px 16px rgba(36, 92, 132, 0.24);
+}
+
+@media (max-width: 850px) {
+  .model-card-active {
+    box-shadow:
+      0 0 0 3px rgba(47, 136, 188, 0.16),
+      0 12px 24px rgba(36, 92, 132, 0.18);
+  }
+}

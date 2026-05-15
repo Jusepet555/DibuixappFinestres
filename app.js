@@ -6,7 +6,7 @@
   corredissa elevable bona i ajust del dibuix de porta amb marc obert,
   perquè el marc obert de la porta quedi més fidel, amb un llindar interior
   fi i continu, i afegeix la lògica del tapajuntes baix segons si la
-  porta té marc inferior obert o tancat. En aquesta v1.43 es manté la interfície guiada i es fa un pas de qualitat visual,
+  porta té marc inferior obert o tancat. En aquesta v1.44 es reforça visualment la targeta seleccionada del tipus de tancament,
   sense tocar el funcionament real del dibuix.
 */
 
