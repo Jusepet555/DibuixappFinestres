@@ -6,7 +6,8 @@
   corredissa elevable bona i ajust del dibuix de porta amb marc obert,
   perquè el marc obert de la porta quedi més fidel, amb un llindar interior
   fi i continu, i afegeix la lògica del tapajuntes baix segons si la
-  porta té marc inferior obert o tancat. En aquesta v1.40 es manté la interfície guiada, les cotes queden sempre visibles i els ajustos de finestra 1 fulla també passen dins les opcions bàsiques.
+  porta té marc inferior obert o tancat. En aquesta v1.43 es manté la interfície guiada i es fa un pas de qualitat visual,
+  sense tocar el funcionament real del dibuix.
 */
 
 // =========================================================
@@ -49,6 +50,8 @@ const doorBottomFrameInput = document.getElementById('doorBottomFrameInput');
 const mainLayout = document.getElementById('mainLayout');
 const previewPanel = document.getElementById('previewPanel');
 const stepMeasures = document.getElementById('stepMeasures');
+const modelSummary = document.getElementById('modelSummary');
+const modelCardButtons = Array.from(document.querySelectorAll('.model-card'));
 
 
 // =========================================================
@@ -95,6 +98,24 @@ function getMeasureDefaults() {
     return { width: SLIDING2_DEFAULT_W, height: SLIDING2_DEFAULT_H };
   }
   return { width: DEFAULT_W, height: DEFAULT_H };
+}
+
+function getModelLabel(model = modelInput.value) {
+  return {
+    fixed: 'Fixe',
+    practicable: 'Practicable 1 fulla',
+    practicable2: 'Practicable 2 fulles',
+    sliding2: 'Corredissa 2 fulles',
+    door: 'Porta 1 fulla'
+  }[model] || 'Dibuix';
+}
+
+function syncModelCards() {
+  modelCardButtons.forEach((button) => {
+    const isActive = button.dataset.model === modelInput.value;
+    button.classList.toggle('model-card-active', isActive);
+    button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
 }
 
 function getMeasuresForDrawing() {
@@ -645,6 +666,8 @@ function drawWindow() {
   const { realWidth, realHeight, svgW, svgH, isFixed, isPracticable2, isSliding2 } = data;
 
   measureSummary.textContent = `H=${realWidth} mm · V=${realHeight} mm`;
+  if (modelSummary) modelSummary.textContent = getModelLabel(modelInput.value);
+  syncModelCards();
 
   const bodyMarkup = isFixed
     ? renderFixed(data)
@@ -762,6 +785,13 @@ document.getElementById('printBtn').addEventListener('click', () => {
   window.print();
 });
 
+modelCardButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    modelInput.value = button.dataset.model;
+    modelInput.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+});
+
 [widthInput, heightInput].forEach((el) => {
   el.addEventListener('input', drawWindow);
   el.addEventListener('blur', () => {
@@ -802,4 +832,5 @@ window.addEventListener('resize', () => {
 });
 
 placePreviewForViewport();
+syncModelCards();
 drawWindow();

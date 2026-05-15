@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DibuixApp Finestres v1.42</title>
+  <title>DibuixApp Finestres v1.43</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="app-header">
-    <div>
+    <div class="header-copy">
+      <span class="header-badge">v1.43 · Interfície pro</span>
       <h1>DibuixApp Finestres</h1>
-      <p>Prototip v1.42 · ajustos plegats per defecte</p>
+      <p>Mateix funcionament tècnic de la base bona, amb una aparença més neta, més moderna i més d'app.</p>
+    </div>
+    <div class="header-side">
+      <div class="header-chip">Base segura v1.42</div>
+      <div class="header-chip header-chip-soft">Mòbil + PC</div>
     </div>
   </header>
 
@@ -19,7 +24,7 @@
       <div class="controls-head">
         <div>
           <h2>Dades del dibuix</h2>
-          <p class="helper-text no-margin">Flux més guiat per a mòbil, mantenint el funcionament de la v1.36.</p>
+          <p class="helper-text no-margin">Flux guiat, mateixa lògica de dibuix i una presentació visual més polida.</p>
         </div>
       </div>
 
@@ -38,8 +43,36 @@
             <p>Selecciona quin element vols dibuixar.</p>
           </div>
         </div>
-        <label>
-          Model
+        <div class="model-card-grid" id="modelCardGrid" aria-label="Tipus de tancament">
+          <button class="model-card" type="button" data-model="fixed">
+            <span class="model-card-icon">▣</span>
+            <span class="model-card-title">Fixe</span>
+            <span class="model-card-text">Sense obertura</span>
+          </button>
+          <button class="model-card model-card-active" type="button" data-model="practicable">
+            <span class="model-card-icon">◪</span>
+            <span class="model-card-title">1 fulla</span>
+            <span class="model-card-text">Practicable</span>
+          </button>
+          <button class="model-card" type="button" data-model="practicable2">
+            <span class="model-card-icon">◫</span>
+            <span class="model-card-title">2 fulles</span>
+            <span class="model-card-text">Practicables</span>
+          </button>
+          <button class="model-card" type="button" data-model="sliding2">
+            <span class="model-card-icon">↔</span>
+            <span class="model-card-title">Corredissa</span>
+            <span class="model-card-text">2 fulles</span>
+          </button>
+          <button class="model-card" type="button" data-model="door">
+            <span class="model-card-icon">▥</span>
+            <span class="model-card-title">Porta</span>
+            <span class="model-card-text">1 fulla</span>
+          </button>
+        </div>
+
+        <label class="alt-selector">
+          Selector manual
           <select id="model">
             <option value="fixed">Fixe</option>
             <option value="practicable" selected>Finestra 1 fulla practicable</option>
@@ -231,14 +264,20 @@
       </div>
 
       <div class="notes">
-        <strong>Versió 1.42 experimental:</strong> manté la interfície mòbil guiada. Els apartats <strong>Opcions bàsiques</strong> i <strong>Tapajuntes</strong> apareixen sempre plegats per defecte i es despleguen només quan interessa.
+        <strong>Versió 1.43 experimental:</strong> es manté la mateixa base funcional de la v1.42 però amb una interfície més top: capçalera més treballada, selector visual del tipus de tancament, targetes més netes i una vista prèvia més presentable.
       </div>
     </section>
 
     <section class="panel preview-panel" id="previewPanel">
       <div class="preview-title">
-        <h2>Vista prèvia</h2>
-        <span id="measureSummary">H=590 mm · V=590 mm</span>
+        <div>
+          <h2>Vista prèvia</h2>
+          <p class="preview-subtitle">Dibuix tècnic actualitzat en directe.</p>
+        </div>
+        <div class="preview-meta">
+          <span id="modelSummary" class="preview-chip">Practicable 1 fulla</span>
+          <span id="measureSummary" class="preview-chip preview-chip-soft">H=590 mm · V=590 mm</span>
+        </div>
       </div>
       <div id="drawingArea" class="drawing-area" aria-label="Dibuix tècnic de finestra"></div>
     </section>
