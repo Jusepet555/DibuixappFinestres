@@ -1,3 +1,3 @@
-DibuixApp Finestres v1.41
-Base: v1.40
-Estat: simplificació d'apartats per a corredissa i porta
+DibuixApp Finestres v1.42
+Base: v1.41
+Estat: opcions bàsiques i tapajuntes plegats per defecte

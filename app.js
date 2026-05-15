@@ -1,5 +1,5 @@
 /*
-  DibuixApp Finestres · v1.41
+  DibuixApp Finestres · v1.42
   Prova experimental de disseny mòbil sobre la base bona v1.36.
 
   Aquesta versió manté la base bona anterior i hi afegeix el mode de
