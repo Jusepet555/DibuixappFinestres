@@ -1,3 +1,3 @@
-DibuixApp Finestres v1.36
-Base: v1.35
-Estat: tapajuntes baix desactivat en porta amb marc inferior obert
+DibuixApp Finestres v1.41
+Base: v1.40
+Estat: simplificació d'apartats per a corredissa i porta

@@ -1,10 +1,10 @@
-# DibuixApp Finestres v1.36
+# DibuixApp Finestres v1.41
 
 ## Base
-Aquesta versió parteix de la v1.35, considerada base bona.
+Aquesta versió parteix de la v1.40.
 
-## Millores v1.36
-- En Porta 1 fulla, si el marc inferior és obert, el tapajuntes baix queda desactivat.
-- En aquest cas, si estava marcat, es desmarca automàticament.
-- Si el marc inferior és tancat, l'opció de tapajuntes baix torna a estar disponible.
-- Es manté la resta del funcionament de la v1.35.
+## Millores v1.41
+- A Corredissa 2 fulles, tots els ajustos passen a l'apartat "Opcions bàsiques".
+- A Porta 1 fulla, els ajustos d'obertura i marc inferior també passen a "Opcions bàsiques".
+- Així, dins de "Ajustos i detalls", els models principals queden simplificats en només dos apartats: "Opcions bàsiques" i "Tapajuntes".
+- No es toca la lògica del dibuix ni el funcionament tècnic de la base bona.

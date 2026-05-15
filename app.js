@@ -1,12 +1,12 @@
 /*
-  DibuixApp Finestres · v1.36
-  Base bona de referència.
+  DibuixApp Finestres · v1.41
+  Prova experimental de disseny mòbil sobre la base bona v1.36.
 
   Aquesta versió manté la base bona anterior i hi afegeix el mode de
   corredissa elevable bona i ajust del dibuix de porta amb marc obert,
   perquè el marc obert de la porta quedi més fidel, amb un llindar interior
   fi i continu, i afegeix la lògica del tapajuntes baix segons si la
-  porta té marc inferior obert o tancat.
+  porta té marc inferior obert o tancat. En aquesta v1.40 es manté la interfície guiada, les cotes queden sempre visibles i els ajustos de finestra 1 fulla també passen dins les opcions bàsiques.
 */
 
 // =========================================================
@@ -27,10 +27,10 @@ const trimBottomInput = document.getElementById('trimBottomInput');
 const trimLeftInput = document.getElementById('trimLeftInput');
 const trimRightInput = document.getElementById('trimRightInput');
 const trimSideOptions = document.getElementById('trimSideOptions');
-const showDims = document.getElementById('showDims');
 const measureSummary = document.getElementById('measureSummary');
 const practiceOptions = document.getElementById('practiceOptions');
 const oscilloRow = document.getElementById('oscilloRow');
+const singleLeafOptions = document.getElementById('singleLeafOptions');
 const multiLeafOptions = document.getElementById('multiLeafOptions');
 const slidingOptions = document.getElementById('slidingOptions');
 const liftSlideOptions = document.getElementById('liftSlideOptions');
@@ -46,6 +46,9 @@ const slideInnerHardware = document.getElementById('slideInnerHardware');
 const slideInteriorSide = document.getElementById('slideInteriorSide');
 const liftSlideInput = document.getElementById('liftSlideInput');
 const doorBottomFrameInput = document.getElementById('doorBottomFrameInput');
+const mainLayout = document.getElementById('mainLayout');
+const previewPanel = document.getElementById('previewPanel');
+const stepMeasures = document.getElementById('stepMeasures');
 
 
 // =========================================================
@@ -166,6 +169,42 @@ function updateDoorTrimControls() {
   if (isDoorOpenBottom) trimBottomInput.checked = false;
 }
 
+
+function placePreviewForViewport() {
+  if (!previewPanel || !stepMeasures || !mainLayout) return;
+  const isMobile = window.matchMedia('(max-width: 850px)').matches;
+  if (isMobile) {
+    if (stepMeasures.nextElementSibling !== previewPanel) {
+      stepMeasures.after(previewPanel);
+    }
+  } else if (mainLayout.lastElementChild !== previewPanel) {
+    mainLayout.appendChild(previewPanel);
+  }
+}
+
+function updateOptionGroupsForCurrentModel() {
+  const optionGroups = Array.from(document.querySelectorAll('.option-group'));
+  optionGroups.forEach((group) => {
+    const summaryText = (group.querySelector('summary')?.textContent || '').trim();
+    if (summaryText === 'Tapajuntes') {
+      group.classList.remove('mobile-hidden-group');
+      return;
+    }
+
+    const stack = group.querySelector('.option-stack');
+    if (!stack) {
+      group.classList.remove('mobile-hidden-group');
+      return;
+    }
+
+    const directBlocks = Array.from(stack.children).filter((child) => child.nodeType === 1);
+    const hasVisibleBlock = directBlocks.some((child) => !child.classList.contains('hidden'));
+    group.classList.toggle('mobile-hidden-group', !hasVisibleBlock);
+  });
+
+  trimSideOptions.classList.toggle('disabled-note', trimBottomInput.disabled && trimInput.checked);
+}
+
 function updateControlVisibility() {
   const model = modelInput.value;
   const isPracticable1 = model === 'practicable';
@@ -175,7 +214,8 @@ function updateControlVisibility() {
   const usesSingleControls = isPracticable1 || isDoor;
   const liftSlideAllowed = isLiftSlideAllowedForCurrentInputs();
 
-  practiceOptions.classList.toggle('hidden', !usesSingleControls);
+  singleLeafOptions.classList.toggle('hidden', !usesSingleControls);
+  practiceOptions.classList.toggle('hidden', !isDoor);
   oscilloRow.classList.toggle('hidden', !isPracticable1);
   openRow.classList.toggle('hidden', !isDoor);
   doorFrameRow.classList.toggle('hidden', !isDoor);
@@ -184,6 +224,7 @@ function updateControlVisibility() {
   liftSlideOptions.classList.toggle('hidden', !liftSlideAllowed);
   trimSideOptions.classList.toggle('hidden', !trimInput.checked);
   updateDoorTrimControls();
+  updateOptionGroupsForCurrentModel();
 
   if (!liftSlideAllowed) liftSlideInput.checked = false;
 
@@ -216,7 +257,7 @@ function getHingePositions(y, h, hingeH, hingeCount, outerInset = 18) {
 // =========================================================
 function getDrawingData() {
   const { realWidth, realHeight } = getMeasuresForDrawing();
-  const dims = showDims.checked;
+  const dims = true;
   const model = modelInput.value;
   const isFixed = model === 'fixed';
   const isPracticable = model === 'practicable';
@@ -750,10 +791,15 @@ trimInput.addEventListener('change', () => {
   drawWindow();
 });
 
-[handInput, openInput, oscilloInput, trimTopInput, trimBottomInput, trimLeftInput, trimRightInput, showDims,
+[handInput, openInput, oscilloInput, trimTopInput, trimBottomInput, trimLeftInput, trimRightInput,
  leaf1Active, leaf1Hand, leaf1Oscillo, leaf2Active, leaf2Hand, leaf2Oscillo, slideOuterHardware, slideInnerHardware, slideInteriorSide, liftSlideInput, doorBottomFrameInput].forEach((el) => {
   el.addEventListener('input', drawWindow);
   el.addEventListener('change', drawWindow);
 });
 
+window.addEventListener('resize', () => {
+  placePreviewForViewport();
+});
+
+placePreviewForViewport();
 drawWindow();
