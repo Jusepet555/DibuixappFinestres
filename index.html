@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DibuixApp Finestres v1.44</title>
+  <title>DibuixApp Finestres v1.50</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="app-header">
     <div class="header-copy">
-      <span class="header-badge">v1.44 · Selecció més visible</span>
+      <span class="header-badge">v1.50 · Dintell 80%</span>
       <h1>DibuixApp Finestres</h1>
       <p>Mateix funcionament tècnic de la base bona, amb una aparença més neta, més moderna i més d'app.</p>
     </div>
@@ -251,6 +251,38 @@
             </div>
           </div>
         </details>
+
+        <details id="persianaGroup" class="option-group">
+          <summary>Persiana</summary>
+          <div class="option-stack">
+            <label>
+              Tipus de persiana
+              <select id="shutterTypeInput">
+                <option value="none" selected>Sense persiana</option>
+                <option value="register">Marc de registre</option>
+                <option value="compact">Compacte</option>
+              </select>
+            </label>
+
+            <div id="shutterOptions" class="hidden shutter-options">
+              <label id="shutterLintelRow" class="hidden">
+                Alçada dintell
+                <input id="shutterLintelInput" type="text" inputmode="numeric" value="250" placeholder="250" />
+              </label>
+              <label id="shutterSideRow" class="hidden">
+                Corretja de persiana
+                <select id="shutterSideInput">
+                  <option value="right" selected>Dreta</option>
+                  <option value="left">Esquerra</option>
+                </select>
+              </label>
+              <div class="shutter-note">
+                <strong>Marc de registre:</strong> només dibuixa el cos superior.<br />
+                <strong>Compacte:</strong> dibuixa també la corretja vertical, per defecte a la dreta.
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
 
       <div class="step-card" id="stepExport">
@@ -269,7 +301,7 @@
       </div>
 
       <div class="notes">
-        <strong>Versió 1.44 experimental:</strong> es manté la base visual de la v1.43 i es reforça molt més el botó del tipus de tancament seleccionat, amb etiqueta <strong>Seleccionat</strong>, vora més clara i una marca de confirmació.
+        <strong>Versió 1.50 experimental:</strong> es manté la lògica bona de cotes i es millora el valor inicial de <strong>l’Alçada dintell</strong>. Quan se selecciona <strong>Marc de registre</strong>, el camp es proposa automàticament amb un valor inicial del <strong>80% de V</strong>, i després l’usuari el pot modificar manualment.
       </div>
     </section>
 

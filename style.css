@@ -961,3 +961,42 @@ button.secondary {
       0 12px 24px rgba(36, 92, 132, 0.18);
   }
 }
+
+
+/* v1.45 · Persiana */
+.shutter-options {
+  align-items: start;
+}
+
+.shutter-note {
+  min-height: 52px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px dashed #c8d6e2;
+  background: linear-gradient(180deg, #fbfdff, #f3f8fb);
+  color: #52606c;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.shutter-note strong {
+  color: #244f72;
+}
+
+
+/* v1.46 · Compacte millorat */
+.shutter-options {
+  display: grid;
+  gap: 12px;
+}
+
+#shutterSideRow {
+  max-width: 260px;
+}
+
+
+/* v1.48 · Cotes de persiana */
+#shutterLintelRow,
+#shutterSideRow {
+  max-width: 260px;
+}

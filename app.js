@@ -6,8 +6,8 @@
   corredissa elevable bona i ajust del dibuix de porta amb marc obert,
   perquè el marc obert de la porta quedi més fidel, amb un llindar interior
   fi i continu, i afegeix la lògica del tapajuntes baix segons si la
-  porta té marc inferior obert o tancat. En aquesta v1.44 es reforça visualment la targeta seleccionada del tipus de tancament,
-  sense tocar el funcionament real del dibuix.
+  porta té marc inferior obert o tancat. En aquesta v1.50 es manté la base visual bona i s'afegeix un valor inicial més útil
+  per al Marc de registre: l'alçada del dintell es proposa al 80% de V.
 */
 
 // =========================================================
@@ -47,6 +47,13 @@ const slideInnerHardware = document.getElementById('slideInnerHardware');
 const slideInteriorSide = document.getElementById('slideInteriorSide');
 const liftSlideInput = document.getElementById('liftSlideInput');
 const doorBottomFrameInput = document.getElementById('doorBottomFrameInput');
+const persianaGroup = document.getElementById('persianaGroup');
+const shutterTypeInput = document.getElementById('shutterTypeInput');
+const shutterLintelInput = document.getElementById('shutterLintelInput');
+const shutterLintelRow = document.getElementById('shutterLintelRow');
+const shutterSideInput = document.getElementById('shutterSideInput');
+const shutterSideRow = document.getElementById('shutterSideRow');
+const shutterOptions = document.getElementById('shutterOptions');
 const mainLayout = document.getElementById('mainLayout');
 const previewPanel = document.getElementById('previewPanel');
 const stepMeasures = document.getElementById('stepMeasures');
@@ -69,6 +76,7 @@ const SLIDING2_DEFAULT_W = 1000;
 const SLIDING2_DEFAULT_H = 1000;
 const LIFT_SLIDE_MIN_W = 2500;
 const LIFT_SLIDE_MIN_H = 2000;
+const SHUTTER_DEFAULT_H = 250;
 
 
 // =========================================================
@@ -118,6 +126,10 @@ function syncModelCards() {
   });
 }
 
+function isWindowModel(model = modelInput.value) {
+  return model === 'fixed' || model === 'practicable' || model === 'practicable2' || model === 'sliding2';
+}
+
 function getMeasuresForDrawing() {
   const defaults = getMeasureDefaults();
   return {
@@ -126,13 +138,33 @@ function getMeasuresForDrawing() {
   };
 }
 
+function getDefaultLintelFromHeight(totalHeight) {
+  const suggested = Math.round(totalHeight * 0.8);
+  const maxFrameHeight = Math.max(MIN_MEASURE, totalHeight - MIN_MEASURE);
+  return Math.min(Math.max(suggested, MIN_MEASURE), maxFrameHeight);
+}
+
+function getEffectiveWindowHeight(totalHeight) {
+  if (!isWindowModel(modelInput.value)) return totalHeight;
+  if (shutterTypeInput.value === 'register') {
+    const rawFrameHeight = parseMeasure(shutterLintelInput.value, getDefaultLintelFromHeight(totalHeight));
+    const maxFrameHeight = Math.max(MIN_MEASURE, totalHeight - MIN_MEASURE);
+    return Math.max(MIN_MEASURE, Math.min(rawFrameHeight, maxFrameHeight));
+  }
+  if (shutterTypeInput.value === 'compact') {
+    return Math.max(MIN_MEASURE, totalHeight - SHUTTER_DEFAULT_H);
+  }
+  return totalHeight;
+}
+
 function canUseLiftSlide(realWidth, realHeight) {
   return realWidth > LIFT_SLIDE_MIN_W && realHeight > LIFT_SLIDE_MIN_H;
 }
 
 function isLiftSlideAllowedForCurrentInputs() {
   const { realWidth, realHeight } = getMeasuresForDrawing();
-  return modelInput.value === 'sliding2' && canUseLiftSlide(realWidth, realHeight);
+  const effectiveHeight = getEffectiveWindowHeight(realHeight);
+  return modelInput.value === 'sliding2' && canUseLiftSlide(realWidth, effectiveHeight);
 }
 
 
@@ -232,8 +264,12 @@ function updateControlVisibility() {
   const isPracticable2 = model === 'practicable2';
   const isSliding2 = model === 'sliding2';
   const isDoor = model === 'door';
+  const hasWindowShutter = isWindowModel(model);
   const usesSingleControls = isPracticable1 || isDoor;
   const liftSlideAllowed = isLiftSlideAllowedForCurrentInputs();
+  const hasSelectedShutter = hasWindowShutter && shutterTypeInput.value !== 'none';
+  const isCompactShutter = hasWindowShutter && shutterTypeInput.value === 'compact';
+  const isRegisterShutter = hasWindowShutter && shutterTypeInput.value === 'register';
 
   singleLeafOptions.classList.toggle('hidden', !usesSingleControls);
   practiceOptions.classList.toggle('hidden', !isDoor);
@@ -244,6 +280,10 @@ function updateControlVisibility() {
   slidingOptions.classList.toggle('hidden', !isSliding2);
   liftSlideOptions.classList.toggle('hidden', !liftSlideAllowed);
   trimSideOptions.classList.toggle('hidden', !trimInput.checked);
+  if (persianaGroup) persianaGroup.classList.toggle('hidden', !hasWindowShutter);
+  if (shutterOptions) shutterOptions.classList.toggle('hidden', !hasSelectedShutter);
+  if (shutterLintelRow) shutterLintelRow.classList.toggle('hidden', !isRegisterShutter);
+  if (shutterSideRow) shutterSideRow.classList.toggle('hidden', !isCompactShutter);
   updateDoorTrimControls();
   updateOptionGroupsForCurrentModel();
 
@@ -277,7 +317,7 @@ function getHingePositions(y, h, hingeH, hingeCount, outerInset = 18) {
 // 7. Lectura de dades i preparació del dibuix
 // =========================================================
 function getDrawingData() {
-  const { realWidth, realHeight } = getMeasuresForDrawing();
+  const { realWidth, realHeight: inputTotalHeight } = getMeasuresForDrawing();
   const dims = true;
   const model = modelInput.value;
   const isFixed = model === 'fixed';
@@ -296,6 +336,17 @@ function getDrawingData() {
   const hand = handInput.value;
   const opening = isDoor ? openInput.value : 'interior';
 
+  const shutterType = isWindowModel(model) ? shutterTypeInput.value : 'none';
+  const hasShutter = shutterType !== 'none';
+  const shutterSide = shutterType === 'compact' ? shutterSideInput.value : 'right';
+  const frameHeightRaw = shutterType === 'register' ? parseMeasure(shutterLintelInput.value, getDefaultLintelFromHeight(inputTotalHeight)) : 0;
+  const maxFrameHeight = Math.max(MIN_MEASURE, inputTotalHeight - MIN_MEASURE);
+  const frameHeight = shutterType === 'register' ? Math.min(frameHeightRaw, maxFrameHeight) : 0;
+  const shutterHeight = shutterType === 'register' ? Math.max(MIN_MEASURE, inputTotalHeight - frameHeight) : (shutterType === 'compact' ? SHUTTER_DEFAULT_H : 0);
+  const realHeight = shutterType === 'register' ? frameHeight : (shutterType === 'none' ? inputTotalHeight : Math.max(MIN_MEASURE, inputTotalHeight - shutterHeight));
+  const totalPieceHeight = shutterType === 'none' ? realHeight : inputTotalHeight;
+  const showV1 = shutterType === 'register';
+
   const leafConfigs = isPracticable2 ? [
     { id: 'left', active: leaf1Active.checked, hand: leaf1Hand.value, oscillo: leaf1Active.checked && leaf1Oscillo.checked },
     { id: 'right', active: leaf2Active.checked, hand: leaf2Hand.value, oscillo: leaf2Active.checked && leaf2Oscillo.checked }
@@ -312,26 +363,28 @@ function getDrawingData() {
 
   const maxDrawW = 430;
   const maxDrawH = 430;
-  const scale = Math.min(maxDrawW / realWidth, maxDrawH / realHeight);
+  const scale = Math.min(maxDrawW / realWidth, maxDrawH / totalPieceHeight);
   const w = realWidth * scale;
   const h = realHeight * scale;
+  const shutterVisual = hasShutter ? shutterHeight * scale : 0;
 
   const trimVisual = hasTrim ? Math.max(14, Math.min(28, Math.round(Math.min(w, h) * 0.08))) : 0;
-  const marginLeft = dims ? 95 : 35;
+  const marginLeft = dims ? (showV1 ? 195 : 95) : 35;
   const marginTop = dims ? 65 : 35;
   const marginRight = dims ? 50 : 35;
   const marginBottom = dims ? 85 : 35;
 
   const svgW = w + marginLeft + marginRight + trimVisual * 2;
-  const svgH = h + marginTop + marginBottom + trimVisual * 2;
+  const svgH = h + marginTop + marginBottom + trimVisual * 2 + shutterVisual;
   const x = marginLeft + trimVisual;
-  const y = marginTop + trimVisual;
+  const y = marginTop + trimVisual + shutterVisual;
 
   return {
-    realWidth, realHeight, dims, model,
+    realWidth, realHeight, totalPieceHeight, dims, model,
     isFixed, isPracticable, isPracticable2, isSliding2, isDoor,
     hasOscillo, hasTrim, trimTop, trimBottom, trimLeft, trimRight,
     hand, opening, doorBottomFrame, leafConfigs, slidingConfig,
+    hasShutter, shutterType, shutterHeight, shutterVisual, shutterSide, frameHeight, showV1,
     w, h, x, y, svgW, svgH, trimVisual
   };
 }
@@ -341,29 +394,50 @@ function getDrawingData() {
 // 8. Peces comunes SVG: tapajuntes, cotes i ferratges
 // =========================================================
 function makeTrimMarkup(data) {
-  const { hasTrim, trimTop, trimBottom, trimLeft, trimRight, x, y, w, h, trimVisual } = data;
+  const { hasTrim, trimTop, trimBottom, trimLeft, trimRight, x, y, w, h, trimVisual, hasShutter, shutterVisual } = data;
   if (!hasTrim) return '';
   const parts = [];
-  if (trimTop) parts.push(`<polygon class="svg-trim-piece" points="${trimLeft ? x - trimVisual : x},${y - trimVisual} ${trimRight ? x + w + trimVisual : x + w},${y - trimVisual} ${x + w},${y} ${x},${y}" />`);
+  const topBaseY = hasShutter ? y - shutterVisual : y;
+  if (trimTop) parts.push(`<polygon class="svg-trim-piece" points="${trimLeft ? x - trimVisual : x},${topBaseY - trimVisual} ${trimRight ? x + w + trimVisual : x + w},${topBaseY - trimVisual} ${x + w},${topBaseY} ${x},${topBaseY}" />`);
   if (trimBottom) parts.push(`<polygon class="svg-trim-piece" points="${x},${y + h} ${x + w},${y + h} ${trimRight ? x + w + trimVisual : x + w},${y + h + trimVisual} ${trimLeft ? x - trimVisual : x},${y + h + trimVisual}" />`);
-  if (trimLeft) parts.push(`<polygon class="svg-trim-piece" points="${x - trimVisual},${trimTop ? y - trimVisual : y} ${x},${y} ${x},${y + h} ${x - trimVisual},${trimBottom ? y + h + trimVisual : y + h}" />`);
-  if (trimRight) parts.push(`<polygon class="svg-trim-piece" points="${x + w},${y} ${x + w + trimVisual},${trimTop ? y - trimVisual : y} ${x + w + trimVisual},${trimBottom ? y + h + trimVisual : y + h} ${x + w},${y + h}" />`);
+  if (trimLeft) parts.push(`<polygon class="svg-trim-piece" points="${x - trimVisual},${trimTop ? topBaseY - trimVisual : topBaseY} ${x},${topBaseY} ${x},${y + h} ${x - trimVisual},${trimBottom ? y + h + trimVisual : y + h}" />`);
+  if (trimRight) parts.push(`<polygon class="svg-trim-piece" points="${x + w},${topBaseY} ${x + w + trimVisual},${trimTop ? topBaseY - trimVisual : topBaseY} ${x + w + trimVisual},${trimBottom ? y + h + trimVisual : y + h} ${x + w},${y + h}" />`);
   return parts.join('');
 }
 
 function makeDimMarkup(data) {
-  const { dims, x, y, w, h, realWidth, realHeight } = data;
+  const { dims, x, y, w, h, realWidth, realHeight, totalPieceHeight, hasShutter, showV1, shutterVisual } = data;
   if (!dims) return '';
+  const totalTopY = hasShutter ? y - shutterVisual : y;
+  const totalDimX = showV1 ? x - 92 : x - 38;
+  const totalGuideX = showV1 ? x - 102 : x - 45;
+  const totalTextX = showV1 ? x - 122 : x - 62;
+  const v1DimX = x - 48;
+  const v1GuideX = x - 58;
+  const v1TextX = x - 74;
+
+  const totalDim = `
+    <line class="svg-guide" x1="${x}" y1="${totalTopY}" x2="${totalGuideX}" y2="${totalTopY}" />
+    <line class="svg-guide" x1="${x}" y1="${y + h}" x2="${totalGuideX}" y2="${y + h}" />
+    <line class="svg-dim" x1="${totalDimX}" y1="${totalTopY}" x2="${totalDimX}" y2="${y + h}" />
+    <text class="svg-text" x="${totalTextX}" y="${(totalTopY + y + h) / 2}" transform="rotate(-90 ${totalTextX} ${(totalTopY + y + h) / 2})" text-anchor="middle">V = ${Math.round(totalPieceHeight)}</text>
+  `;
+
+  const v1Dim = showV1 ? `
+    <line class="svg-guide" x1="${x}" y1="${y}" x2="${v1GuideX}" y2="${y}" />
+    <line class="svg-guide" x1="${x}" y1="${y + h}" x2="${v1GuideX}" y2="${y + h}" />
+    <line class="svg-dim" x1="${v1DimX}" y1="${y}" x2="${v1DimX}" y2="${y + h}" />
+    <text class="svg-text" x="${v1TextX}" y="${y + h / 2}" transform="rotate(-90 ${v1TextX} ${y + h / 2})" text-anchor="middle">V1 = ${realHeight}</text>
+  ` : '';
+
   return `
     <line class="svg-guide" x1="${x}" y1="${y + h}" x2="${x}" y2="${y + h + 45}" />
     <line class="svg-guide" x1="${x + w}" y1="${y + h}" x2="${x + w}" y2="${y + h + 45}" />
     <line class="svg-dim" x1="${x}" y1="${y + h + 38}" x2="${x + w}" y2="${y + h + 38}" />
     <text class="svg-text" x="${x + w / 2}" y="${y + h + 70}" text-anchor="middle">H = ${realWidth}</text>
 
-    <line class="svg-guide" x1="${x}" y1="${y}" x2="${x - 45}" y2="${y}" />
-    <line class="svg-guide" x1="${x}" y1="${y + h}" x2="${x - 45}" y2="${y + h}" />
-    <line class="svg-dim" x1="${x - 38}" y1="${y}" x2="${x - 38}" y2="${y + h}" />
-    <text class="svg-text" x="${x - 62}" y="${y + h / 2}" transform="rotate(-90 ${x - 62} ${y + h / 2})" text-anchor="middle">V = ${realHeight}</text>
+    ${totalDim}
+    ${v1Dim}
   `;
 }
 
@@ -413,6 +487,40 @@ function makeUngler(x, y, side = 'right') {
 // =========================================================
 // 9. Renderitzat de models
 // =========================================================
+function renderShutterMarkup(data) {
+  const { hasShutter, shutterType, shutterVisual, shutterSide, x, y, w, h } = data;
+  if (!hasShutter || shutterVisual <= 0) return '';
+  const boxY = y - shutterVisual;
+  const outerInset = Math.max(10, Math.min(16, shutterVisual * 0.18));
+  const innerY = boxY + outerInset;
+  const innerH = Math.max(8, shutterVisual - outerInset * 2);
+
+  let strap = '';
+  if (shutterType === 'compact') {
+    const strapW = Math.max(7, Math.min(10, w * 0.018));
+    const strapX = shutterSide === 'right' ? x + w - strapW - 10 : x + 10;
+    const strapTop = y + 2;
+    const strapBottom = y + h - 70;
+    const strapH = Math.max(42, strapBottom - strapTop);
+
+    const collectorW = 12;
+    const collectorH = 34;
+    const collectorX = shutterSide === 'right' ? strapX - 1 : strapX + strapW - collectorW + 1;
+    const collectorY = strapTop + strapH - 2;
+
+    strap = `
+      <rect class="svg-shutter-strap-dark" x="${strapX}" y="${strapTop}" width="${strapW}" height="${strapH}" />
+      <rect class="svg-shutter-collector" x="${collectorX}" y="${collectorY}" width="${collectorW}" height="${collectorH}" rx="1.6" />
+    `;
+  }
+
+  return `
+    <rect class="svg-shutter-frame" x="${x}" y="${boxY}" width="${w}" height="${shutterVisual}" />
+    <rect class="svg-shutter-inner" x="${x + outerInset}" y="${innerY}" width="${w - outerInset * 2}" height="${innerH}" />
+    ${strap}
+  `;
+}
+
 function renderSinglePracticable(data) {
   const { x, y, w, h, hand, isDoor, hasOscillo, realHeight, opening, doorBottomFrame } = data;
   const outerInset = 18;
@@ -663,9 +771,9 @@ function drawWindow() {
   updateControlVisibility();
   updateOpenFieldAppearance();
   const data = getDrawingData();
-  const { realWidth, realHeight, svgW, svgH, isFixed, isPracticable2, isSliding2 } = data;
+  const { realWidth, realHeight, totalPieceHeight, svgW, svgH, isFixed, isPracticable2, isSliding2 } = data;
 
-  measureSummary.textContent = `H=${realWidth} mm · V=${realHeight} mm`;
+  measureSummary.textContent = `H=${realWidth} mm · V=${Math.round(totalPieceHeight)} mm`;
   if (modelSummary) modelSummary.textContent = getModelLabel(modelInput.value);
   syncModelCards();
 
@@ -678,6 +786,7 @@ function drawWindow() {
         : renderSinglePracticable(data);
 
   const trimMarkup = makeTrimMarkup(data);
+  const shutterMarkup = renderShutterMarkup(data);
   const dimMarkup = makeDimMarkup(data);
 
   const svgStyles = `
@@ -709,6 +818,10 @@ function drawWindow() {
     .svg-threshold { stroke: #1f2b37; stroke-width: 2.2; }
     .svg-ungler { fill: #ffffff; stroke: #1f2b37; stroke-width: 1.3; }
     .svg-ungler-cut { fill: #1f2b37; }
+    .svg-shutter-frame { fill: #f8fafb; stroke: #1f2b37; stroke-width: 5.2; }
+    .svg-shutter-inner { fill: none; stroke: #3a4651; stroke-width: 2.2; }
+    .svg-shutter-strap-dark { fill: #050608; stroke: #050608; stroke-width: 1; }
+    .svg-shutter-collector { fill: #fbfbfa; stroke: #1f2b37; stroke-width: 1.4; }
   `;
 
   const svg = `
@@ -725,6 +838,7 @@ function drawWindow() {
       <rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#fbfbfa" />
       ${trimMarkup}
       ${bodyMarkup}
+      ${shutterMarkup}
       ${dimMarkup}
     </svg>
   `;
@@ -802,6 +916,22 @@ modelCardButtons.forEach((button) => {
   });
 });
 
+
+shutterLintelInput.addEventListener('blur', () => {
+  if (shutterTypeInput.value === 'register') {
+    const totalHeight = parseMeasure(heightInput.value, getMeasureDefaults().height);
+    const maxFrameHeight = Math.max(MIN_MEASURE, totalHeight - MIN_MEASURE);
+    const normalized = parseMeasure(shutterLintelInput.value, getDefaultLintelFromHeight(totalHeight));
+    shutterLintelInput.value = Math.min(normalized, maxFrameHeight);
+  }
+  drawWindow();
+});
+
+function applyDefaultLintelSuggestion() {
+  const totalHeight = parseMeasure(heightInput.value, getMeasureDefaults().height);
+  shutterLintelInput.value = getDefaultLintelFromHeight(totalHeight);
+}
+
 modelInput.addEventListener('change', () => {
   if (modelInput.value === 'door') {
     applyDoorMeasureDefaults();
@@ -810,6 +940,9 @@ modelInput.addEventListener('change', () => {
     applyPracticable2Defaults();
   } else if (modelInput.value === 'sliding2') {
     applySliding2Defaults();
+  }
+  if (shutterTypeInput.value === 'register') {
+    applyDefaultLintelSuggestion();
   }
   drawWindow();
 });
@@ -822,9 +955,17 @@ trimInput.addEventListener('change', () => {
 });
 
 [handInput, openInput, oscilloInput, trimTopInput, trimBottomInput, trimLeftInput, trimRightInput,
- leaf1Active, leaf1Hand, leaf1Oscillo, leaf2Active, leaf2Hand, leaf2Oscillo, slideOuterHardware, slideInnerHardware, slideInteriorSide, liftSlideInput, doorBottomFrameInput].forEach((el) => {
+ leaf1Active, leaf1Hand, leaf1Oscillo, leaf2Active, leaf2Hand, leaf2Oscillo, slideOuterHardware, slideInnerHardware, slideInteriorSide, liftSlideInput, doorBottomFrameInput, shutterSideInput, shutterLintelInput].forEach((el) => {
   el.addEventListener('input', drawWindow);
   el.addEventListener('change', drawWindow);
+});
+
+shutterTypeInput.addEventListener('input', drawWindow);
+shutterTypeInput.addEventListener('change', () => {
+  if (shutterTypeInput.value === 'register') {
+    applyDefaultLintelSuggestion();
+  }
+  drawWindow();
 });
 
 window.addEventListener('resize', () => {
